@@ -32,7 +32,7 @@ def get_args_values(args=None):
                         default="astr1x2096")
     parser.add_argument('-topic', '--topic',
                         help="topic to publish",
-                        default='onyx')
+                        default='BoomBarrier')
 
     info = parser.parse_args(args)
     return (info.host,
@@ -96,8 +96,9 @@ if __name__ == '__main__':
                 pass
             else:
                 print("Authenticated: ", result)
-                client.publish(topic, result, qos=1, retain=True)
+                client.publish(topic, "open", qos=1, retain=False)
                 time.sleep(5)
+                client.publish(topic, "close", qos=1, retain=False)
         except (KeyboardInterrupt, SystemExit):
             break
     client.disconnect()
