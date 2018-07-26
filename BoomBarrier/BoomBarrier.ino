@@ -9,17 +9,17 @@
 Servo servo;
 #define servopin D4
 
-#define MQTT_SERVER "192.168.0.100"
+#define MQTT_SERVER "192.168.0.179"
 const char* ssid = "Onyx";
 const char* password = "astr1x2096";
-const char* mqtt_username = "astr1x";
-const char* mqtt_password = "astr1x2096";
+const char* mqtt_username = "Onyx";
+const char* mqtt_password = "Onyx123";
 
 // Topic to subscribe to for the commands
-char* subTopic = "BoomBarrier";
+char* subTopic = "Onyx/BoomBarrier/EntryExit";
 
 // Topic to publish to confirm that the boombarrier has been turned on for the python script to log
-char* pubTopic = "BoomBarrier/ack";
+char* pubTopic = "Onyx/BoomBarrier/EntryExitack";
 
 // Callback function header
 void callback(char* topic, byte* payload, unsigned int length);
@@ -92,7 +92,7 @@ void reconnect() {
 
       // Generate client name based on MAC address and last 8 bits of microsecond counter
       String clientName;
-      clientName += "BoomBarrier";
+      clientName += "BoomBarrierEntryExit";
 
       //if connected, subscribe to the topic(s) we want to be notified about
       if (client.connect((char*) clientName.c_str(), mqtt_username, mqtt_password)) {

@@ -9,20 +9,20 @@
 #define in2 D2
 
 // For HC-SR04 sensor
-int trigPin = D3;
-int echoPin = D4;
+int trigPin = D7;
+int echoPin = D8;
 
-#define MQTT_SERVER "192.168.0.100"
+#define MQTT_SERVER "192.168.0.179"
 const char* ssid = "Onyx";
 const char* password = "astr1x2096";
-const char* mqtt_username = "astr1x";
-const char* mqtt_password = "astr1x2096";
+const char* mqtt_username = "Onyx";
+const char* mqtt_password = "Onyx123";
 
 // Topic to subscribe to for the commands
-char* subTopic = "LoadingBay";
+char* subTopic = "Onyx/LoadingBay/Bay1";
 
 // Topic to publish to confirm that the loadingbay has been turned on for the python script to log
-char* pubTopic = "LoadingBay/ack";
+char* pubTopic = "Onyx/LoadingBay/Bay1ack";
 
 // Callback function header
 void callback(char* topic, byte* payload, unsigned int length);
@@ -116,8 +116,10 @@ bool distanceCalculator() {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(10);
   float echoTime = pulseIn (echoPin, HIGH);
+  delayMicroseconds(10);
   float distance = (echoTime * 0.034) / 2;
-  if(distance < 5)
+  Serial.println(distance);
+  if(distance < 10)
     return true;
   else
     return false;
@@ -137,12 +139,14 @@ bool verifyProximity() {
 void loader(String cmd) {
   // Method to start loading
   if(cmd == "load") {
+    Serial.println("Checking proximity");
     if(verifyProximity()) {
+      Serial.println("Starting to Load");
       digitalWrite(in1, HIGH);
-      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
       delay(3000);
       digitalWrite(in1, LOW);
-      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
       delay(100);
     }
   }

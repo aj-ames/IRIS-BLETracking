@@ -16,14 +16,14 @@ float calibration_factor = 30;
 #define MQTT_SERVER "192.168.0.100"
 const char* ssid = "Onyx";
 const char* password = "astr1x2096";
-const char* mqtt_username = "astr1x";
-const char* mqtt_password = "astr1x2096";
+const char* mqtt_username = "Onyx";
+const char* mqtt_password = "Onyx123";
 
 // Topic to subscribe to for the commands
-char* subTopic = "WeighScale";
+char* subTopic = "Onyx/WeighBridge/Bridge1";
 
 // Topic to publish to confirm that the boombarrier has been turned on for the python script to log
-char* pubTopic = "WeighScale/ack";
+char* pubTopic = "Onyx/WeighBridge/Bridge1ack";
 
 char msg[100];
 
