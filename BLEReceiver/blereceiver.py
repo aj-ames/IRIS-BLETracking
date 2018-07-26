@@ -20,16 +20,16 @@ def get_args_values(args=None):
     parser = argparse.ArgumentParser(description="Arguments supported..")
     parser.add_argument('-H', '--host',
                         help='Broker IP',
-                        default='localhost')
+                        default='192.168.0.2')
     parser.add_argument('-p', '--port',
                         help='port of the Broker',
                         default='1883')
     parser.add_argument('-u', '--user',
                         help='user name',
-                        default='astr1x')
+                        default='Onyx')
     parser.add_argument('-P', '--password',
                         help="password",
-                        default="astr1x2096")
+                        default='Onyx123')
     parser.add_argument('-topic', '--topic',
                         help="topic to publish",
                         default='BoomBarrier')

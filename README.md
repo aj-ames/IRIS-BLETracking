@@ -18,7 +18,7 @@ pip3 install -r requirements.txt
  #### Boom Barrier
 -  **Onyx/BoomBarrier/EntryExit**: For sending control commands to Boom Barrier at the Entry/Exit
 - **Onyx/BoomBarrier/EntryExitack**: To receive acknowledgements from the Boom Barrier at the Entry/Exit
--  **Onyx/BoomBarrier/Parking**: For sending control commands to Boom Barrier at the Parking Area
+- **Onyx/BoomBarrier/Parking**: For sending control commands to Boom Barrier at the Parking Area
 - **Onyx/BoomBarrier/Parkingack**: To receive acknowledgements from the Boom Barrier at the Parking Area
 
 #### Weigh Brdige

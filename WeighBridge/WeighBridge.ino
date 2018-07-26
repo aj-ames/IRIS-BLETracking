@@ -13,7 +13,7 @@
 HX711 scale(DOUT, CLK);
 float calibration_factor = 30;
 
-#define MQTT_SERVER "192.168.0.100"
+#define MQTT_SERVER "192.168.0.2"
 const char* ssid = "Onyx";
 const char* password = "astr1x2096";
 const char* mqtt_username = "Onyx";

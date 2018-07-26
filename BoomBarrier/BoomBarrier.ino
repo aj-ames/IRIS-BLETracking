@@ -9,7 +9,7 @@
 Servo servo;
 #define servopin D4
 
-#define MQTT_SERVER "192.168.0.179"
+#define MQTT_SERVER "192.168.0.2"
 const char* ssid = "Onyx";
 const char* password = "astr1x2096";
 const char* mqtt_username = "Onyx";
