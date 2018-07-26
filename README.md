@@ -13,9 +13,9 @@ pip3 install -r requirements.txt
 ```
 ## Topic Names
  
- ### Different topic names used are as follows:
+### Different topic names used are as follows:
 
- #### Boom Barrier
+#### Boom Barrier
 -  **Onyx/BoomBarrier/EntryExit**: For sending control commands to Boom Barrier at the Entry/Exit
 - **Onyx/BoomBarrier/EntryExitack**: To receive acknowledgements from the Boom Barrier at the Entry/Exit
 - **Onyx/BoomBarrier/Parking**: For sending control commands to Boom Barrier at the Parking Area
