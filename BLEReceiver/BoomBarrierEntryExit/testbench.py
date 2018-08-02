@@ -8,34 +8,22 @@ import paho.mqtt.client as mqtt
 import argparse
 import sys
 ## For using BLE
-##from bluepy.btle import Scanner
-##scanner = Scanner()
 
-class Variables:
-    ''' Class to store all variables used. '''
+from bluepy.btle import Scanner
+scanner = Scanner()
 
+## Flag to check acknowledgement
+ack = False
+
+class Azure:
     ## Variables for Azure Connection
     path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-    device_id = "DG_INOUT"
+    device_id = "RC_GATE"
     sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
     iot_hub_name = "IWizardsIOTHub"
     azureport = 8883
-    
-    ## Varibales for Local Connection
-    user = "astr1x"
-    password = "astr1x2096"
-    topic = "Onyx/BoomBarrier/EntryExit"
-    broker_address="localhost"
-    localport = 1883
-
-    ## Client Objects for MQTT
     azureClient = None
-    localClient = None
 
-    ## Template for JSON to be published
-    publishData = '{"ReceiverID":"null", "EventType":"null", "Devices":{"TruckID":"null", "BLEID":"null", "dynamic1":"null", "dynamic2":"null"}}'
-
-class Azure:
     ''' Class to define methods, callbacks and initiate client MQTT connection to Azure IoT Hub. '''
 
     def on_connect(self, client, userdata, flags, rc):
@@ -49,7 +37,7 @@ class Azure:
 
     def on_publish(self, client, userdata, mid):
         print ("Device sent message to Azure IoT Hub")
-        Variables.azureClient.subscribe("devices/" + Variables.device_id + "/messages/devicebound/#")
+        self.azureClient.subscribe("devices/" + self.device_id + "/messages/devicebound/#")
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         print("Subscribed")
@@ -57,35 +45,43 @@ class Azure:
     def on_message(self, client, userdata, message):
         print("Device received message from Azure IoT Hub")
         print(str(message.payload.decode("utf-8")))
+        global ack
+        ack = True     
 
     def __init__(self):
-        Variables.azureClient = mqtt.Client(client_id=Variables.device_id, 
+        self.azureClient = mqtt.Client(client_id=self.device_id, 
                                             protocol=mqtt.MQTTv311)
-        Variables.azureClient.on_connect = self.on_connect
-        Variables.azureClient.on_disconnect = self.on_disconnect
-        Variables.azureClient.on_publish = self.on_publish
-        Variables.azureClient.on_subscribe = self.on_subscribe
-        Variables.azureClient.on_message = self.on_message
+        self.azureClient.on_connect = self.on_connect
+        self.azureClient.on_disconnect = self.on_disconnect
+        self.azureClient.on_publish = self.on_publish
+        self.azureClient.on_subscribe = self.on_subscribe
+        self.azureClient.on_message = self.on_message
 
         print("Initiating connection to Azure IoT Hub..")
-        Variables.azureClient.username_pw_set(username=Variables.iot_hub_name 
+        self.azureClient.username_pw_set(username=self.iot_hub_name 
                                               +".azure-devices.net/"
-                                              +Variables.device_id, 
-                                              password=Variables.sas_token)
+                                              +self.device_id, 
+                                              password=self.sas_token)
 
-        Variables.azureClient.tls_set(ca_certs=Variables.path_to_root_cert,
+        self.azureClient.tls_set(ca_certs=self.path_to_root_cert,
                                       certfile=None, keyfile=None,
                                       cert_reqs=ssl.CERT_REQUIRED, 
                                       tls_version=ssl.PROTOCOL_TLSv1, ciphers=None)
-        Variables.azureClient.tls_insecure_set(False)
+        self.azureClient.tls_insecure_set(False)
 
         print("Waiting to connect to IoT Hub..")
-        Variables.azureClient.connect(Variables.iot_hub_name+".azure-devices.net", Variables.azureport)
-        Variables.azureClient.loop_start()
-
+        self.azureClient.connect(self.iot_hub_name+".azure-devices.net", self.azureport)
+        self.azureClient.loop_start()
 
 class Local:
     ''' Class to define methods, callbacks and initiate client MQTT connection to Azure IoT Hub. '''
+     ## Varibales for Local Connection
+    user = "astr1x"
+    password = "astr1x2096"
+    topic = "Onyx/BoomBarrier/EntryExit"
+    broker_address="localhost"
+    localport = 1883
+    localClient = None
 
     def on_connect(self, client, userdata, flags, rc):
         if(rc == 0):
@@ -100,17 +96,16 @@ class Local:
         print ("Device sent message to Boom Barrier")
 
     def __init__(self):
-        Variables.localClient = mqtt.Client("BoomBarrierReceiver")
-        Variables.localClient.on_connect = self.on_connect
-        Variables.localClient.on_disconnect = self.on_disconnect
-        Variables.localClient.on_publish = self.on_publish
+        self.localClient = mqtt.Client("BoomBarrierReceiver")
+        self.localClient.on_connect = self.on_connect
+        self.localClient.on_disconnect = self.on_disconnect
+        self.localClient.on_publish = self.on_publish
 
         print("Initializing connection to Local Broker")
-        Variables.localClient.username_pw_set(Variables.user, password=Variables.password)  # set username and password
-        Variables.localClient.connect(Variables.broker_address, Variables.localport)  # connect to broker
-        Variables.localClient.loop_start()
+        self.localClient.username_pw_set(self.user, password=self.password)  # set username and password
+        self.localClient.connect(self.broker_address, self.localport)  # connect to broker
+        self.localClient.loop_start()
         
-'''
 class Receiver:
     def calculateDistance(self, rssi):
         """ Method to calculate distance based on RSSI value. """
@@ -147,25 +142,39 @@ class Receiver:
             elif(address == add and rssi > -34 and rssi < 0):
                 pass
         return add
-'''
 
-## Initialize the Azure class
-Azure()
 
 ## Initiate the Local class
-Local()
+Local = Local()
 
-Variables.azureClient.publish("devices/" + Variables.device_id + "/messages/events/",
-                          Variables.publishData, qos=1)
-Variables.localClient.publish(Variables.topic, "Yo", qos=1)
+## Initialize the Azure class
+Azure = Azure()
 
-try:
-    while True:
-        time.sleep(0.1)
-except (KeyboardInterrupt, SystemExit):
-    print()
-    print("Exiting..")
-    Variables.localClient.loop_stop()
-    Variables.localClient.disconnect()
-    Variables.azureClient.loop_stop()
-    Variables.azureClient.disconnect()
+## Initiate Receiver class
+Receiver = Receiver()
+
+publishData = '{"ReceiverID":"null", "EventType":"null", "Devices":{"TruckID":"null", "BLEID":"null", "dynamic1":"null", "dynamic2":"null"}}'
+
+while True:
+    result = None
+    try:
+        rssi, address = Receiver.rangeScanner()
+        if(rssi > -34 and rssi < 0):
+            result = Receiver.proximityScanner(address)
+            if(result == None):
+                pass
+            else:
+                Azure.azureClient.publish("devices/" + Azure.device_id + "/messages/events/",
+                                           publishData, qos=1)
+        if(ack):
+            Local.localClient.publish(Local.topic, "open", qos=1)
+            ack = False
+            time.sleep(0.5)
+        
+    except (KeyboardInterrupt, SystemExit):
+        print()
+        print("Exiting..")
+        Local.localClient.loop_stop()
+        Local.localClient.disconnect()
+        Azure.azureClient.loop_stop()
+        Azure.azureClient.disconnect()
