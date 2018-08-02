@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 - **Onyx/BoomBarrier/Parking**: For sending control commands to Boom Barrier at the Parking Area
 - **Onyx/BoomBarrier/Parkingack**: To receive acknowledgements from the Boom Barrier at the Parking Area
 
-#### Weigh Brdige
+#### Weigh Bridge
 - **Onyx/WeighBridge/Bridge1**: To send control commands to Weigh Bridge 1
 - **Onyx/WeighBridge/Bridge1ack**: To get the weight back from Weigh Bridge 1
 - **Onyx/WeighBridge/Bridge2**: To send control commands to Weigh Bridge 2
