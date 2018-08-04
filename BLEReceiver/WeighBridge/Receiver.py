@@ -18,7 +18,7 @@ ScanInit = True
 class Azure:
     ## Variables for Azure Connection
     path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-    device_id = "BLE_WeighBridge"
+    device_id = "Receiver_WeighBridge"
     sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
     iot_hub_name = "IWizardsIOTHub"
     azureport = 8883
@@ -160,8 +160,7 @@ Receiver = Receiver()
 
 scanner = Scanner()
 
-publishData = '{"ReceiverID":"null", "EventType":"null", "Devices":{"TruckID":"null", "BLEID":"null", "dynamic1":"null", "dynamic2":"null"}}'
-
+publishData = '{"id":"00815414", "DeviceID":"Receiver_WeighBridge", "EventType":"ENTRY_AUTH", "iIndustry":"true", "Devices":{ "TruckID":"111", "BLEID":"1111", "dynamic1":"11", "dynamic2":"11111" }, "Data":{}}'
 while True:
     result = None
     try:

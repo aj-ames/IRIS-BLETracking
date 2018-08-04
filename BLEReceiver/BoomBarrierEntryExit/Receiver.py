@@ -18,7 +18,7 @@ ScanInit = True
 class Azure:
     ## Variables for Azure Connection
     path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-    device_id = "BLE_EntryExit"
+    device_id = "Receiver_EntryExit"
     sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
     iot_hub_name = "IWizardsIOTHub"
     azureport = 8883
