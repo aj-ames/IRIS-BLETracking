@@ -92,13 +92,13 @@ if __name__ == '__main__':
             rssi, address = rangeScanner()
             if(rssi > -34 and rssi < 0):
                 result = proximityScanner(address)
-            if(result == None):
-                pass
-            else:
-                print("Authenticated: ", result)
-                client.publish(topic, "open", qos=1, retain=False)
-                time.sleep(5)
-                client.publish(topic, "close", qos=1, retain=False)
+                if(result == None):
+                    pass
+                else:
+                    print("Authenticated: ", result)
+                    client.publish(topic, "open", qos=1, retain=False)
+                    time.sleep(5)
+                    client.publish(topic, "close", qos=1, retain=False)
         except (KeyboardInterrupt, SystemExit):
             break
     client.disconnect()

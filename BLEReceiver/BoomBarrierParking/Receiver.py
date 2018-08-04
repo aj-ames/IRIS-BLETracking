@@ -18,7 +18,7 @@ ScanInit = True
 class Azure:
     ## Variables for Azure Connection
     path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-    device_id = "RC_GATE"
+    device_id = "BLE_Parking"
     sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
     iot_hub_name = "IWizardsIOTHub"
     azureport = 8883
@@ -77,7 +77,7 @@ class Local:
      ## Varibales for Local Connection
     user = "Onyx"
     password = "Onyx123"
-    topic = "Onyx/BoomBarrier/EntryExit"
+    topic = "Onyx/BoomBarrier/Parking"
     broker_address="BrokerPi.local"
     localport = 1883
     localClient = None
@@ -99,7 +99,7 @@ class Local:
         ScanInit = True
 
     def __init__(self):
-        self.localClient = mqtt.Client("BoomBarrierReceiver")
+        self.localClient = mqtt.Client("BoomParkingReceiver")
         self.localClient.on_connect = self.on_connect
         self.localClient.on_disconnect = self.on_disconnect
         self.localClient.on_publish = self.on_publish
@@ -180,3 +180,4 @@ while True:
         Local.localClient.disconnect()
         Azure.azureClient.loop_stop()
         Azure.azureClient.disconnect()
+        break

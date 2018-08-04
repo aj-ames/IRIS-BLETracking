@@ -8,8 +8,8 @@ import ssl
 import time
 import argparse
 
-path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-device_id = "RC_GATE"
+path_to_root_cert = "../../BaltimoreCertificate/digicert.cer"
+device_id = "BLE_LoadingBay"
 sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
 iot_hub_name = "IWizardsIOTHub"
 
