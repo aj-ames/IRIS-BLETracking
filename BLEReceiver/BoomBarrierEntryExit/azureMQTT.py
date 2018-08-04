@@ -9,7 +9,7 @@ import time
 import argparse
 
 path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-device_id = "DG_INOUT"
+device_id = "RC_GATE"
 sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
 iot_hub_name = "IWizardsIOTHub"
 

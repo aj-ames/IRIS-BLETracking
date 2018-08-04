@@ -10,10 +10,10 @@ import sys
 ## For using BLE
 
 from bluepy.btle import Scanner
-scanner = Scanner()
 
 ## Flag to check acknowledgement
-ack = False
+SendAck = False
+ScanInit = True
 
 class Azure:
     ## Variables for Azure Connection
@@ -44,9 +44,8 @@ class Azure:
 
     def on_message(self, client, userdata, message):
         print("Device received message from Azure IoT Hub")
-        print(str(message.payload.decode("utf-8")))
-        global ack
-        ack = True     
+        global Local
+        Local.localClient.publish(Local.topic, "open", qos=1)
 
     def __init__(self):
         self.azureClient = mqtt.Client(client_id=self.device_id, 
@@ -76,10 +75,10 @@ class Azure:
 class Local:
     ''' Class to define methods, callbacks and initiate client MQTT connection to Azure IoT Hub. '''
      ## Varibales for Local Connection
-    user = "astr1x"
-    password = "astr1x2096"
+    user = "Onyx"
+    password = "Onyx123"
     topic = "Onyx/BoomBarrier/EntryExit"
-    broker_address="localhost"
+    broker_address="BrokerPi.local"
     localport = 1883
     localClient = None
 
@@ -94,6 +93,10 @@ class Local:
 
     def on_publish(self, client, userdata, mid):
         print ("Device sent message to Boom Barrier")
+        print("Sleep for 10 seconds as buffer period")
+        time.sleep(10)
+        global ScanInit 
+        ScanInit = True
 
     def __init__(self):
         self.localClient = mqtt.Client("BoomBarrierReceiver")
@@ -122,55 +125,54 @@ class Receiver:
 
     def rangeScanner(self):
         """ Method to check for beacons in range. """
-        devices = scanner.scan(0.5)
+        print("Scanning..")
+        global scanner
+        devices = scanner.scan(1)
+        rssi = -45
+        address = None
         for dev in devices:
-            if(dev.addr == "55:46:4f:fb:39:6e" and dev.rssi > -34):
-                print("Within Range")
-                time.sleep(0.25)
-                return dev.rssi, dev.addr
-        print("Out of bound")
+            if(dev.rssi > rssi):
+                rssi = dev.rssi
+                address = dev.addr
+        if(not address == None):
+            print("Within Range: " + address + "RSSI: " + str(rssi))
         time.sleep(0.25)
-        return 0, None
+        return rssi, address
 
     def proximityScanner(self, add):
         """ Method to quantify if beacon is in proximity. """
+        prox = 0
         t0 = time.time()
-        while((time.time() - t0) < 4):
+        while((time.time() - t0) < 3):
             rssi, address = self.rangeScanner()
-            if(address == None and rssi == 0):
-                return None
-            elif(address == add and rssi > -34 and rssi < 0):
-                pass
-        return add
+            if(address == add and rssi > -45):
+                prox += 1
+        return prox
 
 
 ## Initiate the Local class
 Local = Local()
-
 ## Initialize the Azure class
 Azure = Azure()
 
 ## Initiate Receiver class
 Receiver = Receiver()
 
+scanner = Scanner()
+
 publishData = '{"ReceiverID":"null", "EventType":"null", "Devices":{"TruckID":"null", "BLEID":"null", "dynamic1":"null", "dynamic2":"null"}}'
 
 while True:
     result = None
     try:
-        rssi, address = Receiver.rangeScanner()
-        if(rssi > -34 and rssi < 0):
-            result = Receiver.proximityScanner(address)
-            if(result == None):
-                pass
-            else:
-                Azure.azureClient.publish("devices/" + Azure.device_id + "/messages/events/",
-                                           publishData, qos=1)
-        if(ack):
-            Local.localClient.publish(Local.topic, "open", qos=1)
-            ack = False
-            time.sleep(0.5)
-        
+        if(ScanInit):
+            rssi, address = Receiver.rangeScanner()
+            if(rssi > -45):
+                result = Receiver.proximityScanner(address)
+                if(result >= 2):
+                    Azure.azureClient.publish("devices/" + Azure.device_id + "/messages/events/",
+                                               publishData, qos=1)
+                    ScanInit = False
     except (KeyboardInterrupt, SystemExit):
         print()
         print("Exiting..")
