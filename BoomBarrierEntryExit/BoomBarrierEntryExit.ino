@@ -9,9 +9,13 @@
 Servo servo;
 #define servopin D4
 
-#define MQTT_SERVER "192.168.0.2"
-const char* ssid = "Onyx";
-const char* password = "astr1x2096";
+//For ultrasonic
+#define TRIGGER 5
+#define ECHO    4
+
+#define MQTT_SERVER "BrokerPi.local"
+const char* ssid = "IWIZARDS-ACT";
+const char* password = "iWizards2014";
 const char* mqtt_username = "Onyx";
 const char* mqtt_password = "Onyx123";
 
@@ -25,7 +29,7 @@ char* pubTopic = "Onyx/BoomBarrier/EntryExitack";
 void callback(char* topic, byte* payload, unsigned int length);
 void reconnect();
 void servoControl(String cmd);
-
+long ultrasonic();
 WiFiClient wifiClient;
 PubSubClient client(MQTT_SERVER, 1883, callback, wifiClient);
 
@@ -36,8 +40,11 @@ void setup() {
 
   servo.attach(servopin);
   servo.write(0);
-  delay(250);
+  delay(500);
   servo.detach();
+
+  pinMode(TRIGGER, OUTPUT);
+  pinMode(ECHO, INPUT);
 
   // Start wifi subsystem
   WiFi.begin(ssid, password);
@@ -47,16 +54,17 @@ void setup() {
 
   // Wait a bit before starting the main loop
   delay(2000);
+  Serial.println("Done");
 }
 
 void loop() {
-   // Reconnect if connection is lost
+  // Reconnect if connection is lost
   if (!client.connected() && WiFi.status() == 3)
     reconnect();
 
   // Maintain MQTT connection
   client.loop();
-  
+
   // MUST delay to allow ESP8266 WIFI functions to run
   delay(10);
 }
@@ -64,7 +72,7 @@ void loop() {
 // MQTT callback function
 void callback(char* topic, byte* payload, unsigned int length) {
   String msg = "";
-  for(int i = 0; i < length; i++)
+  for (int i = 0; i < length; i++)
     msg += (char)payload[i];
   servoControl(msg);
   yield(); //to prevent watchdog timer to run out
@@ -76,18 +84,18 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void reconnect() {
 
   //attempt to connect to the wifi if connection is lost
-  if(WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED) {
 
     //loop while we wait for connection
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       // Serial.print(".");
     }
-}
+  }
 
   //make sure we are connected to WIFI before attemping to reconnect to MQTT
-  if(WiFi.status() == WL_CONNECTED){
-  // Loop until we're reconnected to the MQTT server
+  if (WiFi.status() == WL_CONNECTED) {
+    // Loop until we're reconnected to the MQTT server
     while (!client.connected()) {
 
       // Generate client name based on MAC address and last 8 bits of microsecond counter
@@ -103,20 +111,48 @@ void reconnect() {
   }
 }
 
-void servoControl(String command) {
-  if(command == "open") {
+void servoControl(String command)
+{
+  if (command == "open") {
     Serial.println("opening");
     servo.attach(servopin);
     servo.write(90);
-    delay(250);
+    delay(500);
+    servo.detach();
+    while(true) {
+      if(ultrasonic() < 10)
+      {
+        delay(250);
+        while(ultrasonic() < 10)
+          delay(250);
+        break; 
+      }
+    }
+    delay(1000);
+    servo.attach(servopin);
+    servo.write(0);
+    delay(500);
     servo.detach();
   }
-  if(command == "close") {
+  if (command == "close") {
     Serial.println("closing");
     servo.attach(servopin);
     servo.write(0);
-    delay(250);
+    delay(500);
     servo.detach();
   }
 }
+long ultrasonic()
+{
+  long duration, distance;
+  digitalWrite(TRIGGER, LOW);
+  delayMicroseconds(2);
 
+  digitalWrite(TRIGGER, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(TRIGGER, LOW);
+  duration = pulseIn(ECHO, HIGH);
+  distance = (duration / 2) / 29.1;
+  return distance;
+}
