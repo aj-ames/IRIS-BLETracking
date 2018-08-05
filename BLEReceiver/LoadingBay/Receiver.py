@@ -45,7 +45,7 @@ class Azure:
     def on_message(self, client, userdata, message):
         print("Device received message from Azure IoT Hub")
         global Local
-        Local.localClient.publish(Local.topic, "open", qos=1)
+        Local.localClient.publish(Local.topic, "load", qos=1)
 
     def __init__(self):
         self.azureClient = mqtt.Client(client_id=self.device_id, 

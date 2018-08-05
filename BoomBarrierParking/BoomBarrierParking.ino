@@ -7,7 +7,7 @@
 // For Servo Motor
 #include <Servo.h>
 Servo servo;
-#define servopin D4
+#define servopin D5
 
 //For ultrasonic
 #define TRIGGER 5
