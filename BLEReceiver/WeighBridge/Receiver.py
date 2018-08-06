@@ -218,6 +218,7 @@ class Local:
         self.localClient.on_disconnect = self.on_disconnect
         self.localClient.on_publish = self.on_publish
         self.localClient.on_subscribe = self.on_subscribe
+        self.localClient.on_message = self.on_message
 
         print("Initializing connection to Local Broker")
         self.localClient.username_pw_set(self.user, password=self.password)  # set username and password
