@@ -259,7 +259,7 @@ class Receiver:
         """ Method to quantify if beacon is in proximity. """
         prox = 0
         t0 = time.time()
-        while((time.time() - t0) < 3):
+        while((time.time() - t0) < 4):
             rssi, address = self.rangeScanner()
             if(address == add and rssi > -45):
                 prox += 1
