@@ -1,4 +1,4 @@
-# Onyx-BLETracking
+# IRIS: Indoor Real-time Integrated System
  #### Experimental Indoor Tracking using BLE beacons
 
 ## Setup
