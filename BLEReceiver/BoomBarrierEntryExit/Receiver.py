@@ -78,7 +78,7 @@ class Local:
     user = "Onyx"
     password = "Onyx123"
     topic = "Onyx/BoomBarrier/EntryExit"
-    broker_address="BrokerPi.local"
+    broker_address="Kratos.local"
     localport = 1883
     localClient = None
 
@@ -143,10 +143,12 @@ class Receiver:
         """ Method to quantify if beacon is in proximity. """
         prox = 0
         t0 = time.time()
-        while((time.time() - t0) < 3):
+        while((time.time() - t0) < 4):
             rssi, address = self.rangeScanner()
             if(address == add and rssi > -45):
                 prox += 1
+                if(prox == 2):
+                    break
         return prox
 
 

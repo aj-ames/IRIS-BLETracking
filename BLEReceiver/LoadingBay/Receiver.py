@@ -78,7 +78,7 @@ class Local:
     user = "Onyx"
     password = "Onyx123"
     topic = "Onyx/LoadingBay/Bay1"
-    broker_address="BrokerPi.local"
+    broker_address="Kratos.local"
     localport = 1883
     localClient = None
 
@@ -147,6 +147,8 @@ class Receiver:
             rssi, address = self.rangeScanner()
             if(address == add and rssi > -45):
                 prox += 1
+                if(prox == 2):
+                    break
         return prox
 
 

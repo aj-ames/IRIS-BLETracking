@@ -147,7 +147,7 @@ class Azure:
     def on_message(self, client, userdata, message):
         print("Device received message from Azure IoT Hub")
         global Local
-        Local.localClient.publish(Local.topic, "open", qos=1)
+        Local.localClient.publish(Local.topic, "weigh", qos=1)
 
     def __init__(self):
         self.azureClient = mqtt.Client(client_id=self.device_id, 
@@ -181,7 +181,7 @@ class Local:
     password = "Onyx123"
     topic = "Onyx/WeighBridge/Bridge1"
     topicWeight = "Onyx/WeighBridge/Bridge1ack"
-    broker_address="BrokerPi.local"
+    broker_address="Kratos.local"
     localport = 1883
     localClient = None
 
@@ -196,10 +196,6 @@ class Local:
 
     def on_publish(self, client, userdata, mid):
         print ("Device sent message to Weigh Bridge")
-        print("Sleep for 10 seconds as buffer period")
-        time.sleep(10)
-        global ScanInit 
-        ScanInit = True
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         print("Subscribed to receive weight")
@@ -209,6 +205,10 @@ class Local:
         msg = "Weight:" + str(message.payload.decode("utf-8")) + "gms"
         lcd_string(msg, LCD_LINE_1)
         lcd_string("Truck: KA03ML843", LCD_LINE_2)
+        print("Sleep for 10 seconds as buffer period")
+        time.sleep(10)
+        global ScanInit 
+        ScanInit = True
  
     time.sleep(3)
 
@@ -262,6 +262,8 @@ class Receiver:
             rssi, address = self.rangeScanner()
             if(address == add and rssi > -45):
                 prox += 1
+                if(prox == 2):
+                    break
         return prox
 
 

@@ -2,7 +2,7 @@
 
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
-#define BAUD_RATE 9600
+#define BAUD_RATE 115200
 
 //For Weighing Scale
 #include <HX711.h>
@@ -11,11 +11,11 @@
 #define CLK  14
 
 HX711 scale(DOUT, CLK);
-float calibration_factor = 30;
-
-#define MQTT_SERVER "192.168.0.2"
-const char* ssid = "Onyx";
-const char* password = "astr1x2096";
+float calibration_factor = 780;
+float units;
+#define MQTT_SERVER "Kratos.local"
+const char* ssid = "SpectraNet_iWiz";
+const char* password = "iWizards2014";
 const char* mqtt_username = "Onyx";
 const char* mqtt_password = "Onyx123";
 
@@ -69,6 +69,7 @@ void loop() {
   
   // MUST delay to allow ESP8266 WIFI functions to run
   delay(10);
+  //weigh();
 }
 
 
@@ -77,6 +78,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   String msg = "";
   for(int i = 0; i < length; i++)
     msg += (char)payload[i];
+  Serial.println(msg);
   weigh();
   yield(); //to prevent watchdog timer to run out
 }
@@ -89,7 +91,7 @@ void reconnect() {
     //loop while we wait for connection
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
-      // Serial.print(".");
+       Serial.print(".");
     }
 }
 
@@ -106,6 +108,7 @@ void reconnect() {
       if (client.connect((char*) clientName.c_str(), mqtt_username, mqtt_password)) {
         //Serial.print("\tMQTT Connected");
         client.subscribe(subTopic);
+        //weigh();
       }
     }
   }
@@ -113,20 +116,31 @@ void reconnect() {
 
 void weigh() {
   // Method to calculate weight
-  float units;
+  float temp;
+  delay(100);
+  temp = scale.get_units(), 10;
+  Serial.println(temp);
+  while(temp < 20.0) {
+    temp = scale.get_units(), 10;
+    delay(250);
+  }
+  delay(2000);
   long timer = millis();
   int counter = 0;
-  while((millis() - timer) < 2000) {
-    units = scale.get_units(), 10;
-    if (units < 0) {
-      units = 0.00;
-    }
-    counter += 1;
-    delay(100);
+  Serial.print("Reading: ");
+  units = scale.get_units(), 1;
+  if (units < 0) {
+    units = 0.00;
   }
-  units = units/counter;
+  Serial.print(units);
+  Serial.print(" grams"); 
+  Serial.print(" calibration_factor: ");
+  Serial.print(calibration_factor);
+  Serial.println();
   String str = String(units);
   str.toCharArray(msg, str.length() + 1);
-    client.publish(pubTopic, msg);
+  client.publish(pubTopic, msg);
+  
 }
+
 

@@ -13,8 +13,8 @@ Servo servo;
 #define TRIGGER 5
 #define ECHO    4
 
-#define MQTT_SERVER "BrokerPi.local"
-const char* ssid = "IWIZARDS-ACT";
+#define MQTT_SERVER "Kratos.local"
+const char* ssid = "SpectraNet_iWiz";
 const char* password = "iWizards2014";
 const char* mqtt_username = "Onyx";
 const char* mqtt_password = "Onyx123";
@@ -154,5 +154,6 @@ long ultrasonic()
   digitalWrite(TRIGGER, LOW);
   duration = pulseIn(ECHO, HIGH);
   distance = (duration / 2) / 29.1;
+  Serial.println(distance);
   return distance;
 }
