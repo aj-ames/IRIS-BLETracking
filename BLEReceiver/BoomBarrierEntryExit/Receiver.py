@@ -22,6 +22,10 @@ class Azure:
     sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
     iot_hub_name = "IWizardsIOTHub"
     azureport = 8883
+    head = {
+        "iothub-contenttype":"application/json",
+        "iothub-contentencoding":"utf-8"
+    }
     azureClient = None
 
     ''' Class to define methods, callbacks and initiate client MQTT connection to Azure IoT Hub. '''
@@ -67,7 +71,7 @@ class Azure:
                                       cert_reqs=ssl.CERT_REQUIRED, 
                                       tls_version=ssl.PROTOCOL_TLSv1, ciphers=None)
         self.azureClient.tls_insecure_set(False)
-
+        self.azureClient.ws_set_options(path="/mqtt", headers=self.head)
         print("Waiting to connect to IoT Hub..")
         self.azureClient.connect(self.iot_hub_name+".azure-devices.net", self.azureport)
         self.azureClient.loop_start()

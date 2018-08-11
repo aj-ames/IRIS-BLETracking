@@ -79,7 +79,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
   for(int i = 0; i < length; i++)
     msg += (char)payload[i];
   Serial.println(msg);
-  weigh();
+  if(msg == "weigh")
+    weigh();
   yield(); //to prevent watchdog timer to run out
 }
 

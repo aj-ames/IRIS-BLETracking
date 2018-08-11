@@ -54,7 +54,7 @@ void setup() {
 
   // Wait a bit before starting the main loop
   delay(2000);
-  Serial.println
+  Serial.println("Done");
 }
 
 void loop() {
