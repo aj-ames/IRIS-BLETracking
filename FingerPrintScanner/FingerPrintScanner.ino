@@ -51,7 +51,7 @@ void fingScan() {
         }
         else {
           Serial.println("Unauthorized:");
-          Serial1.print("Authorized:");
+          Serial1.print("Unauthorized:");
           break;
         }
       }
