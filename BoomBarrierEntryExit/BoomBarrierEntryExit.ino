@@ -1,5 +1,4 @@
 /* NodeMCU 12E program to open and close boom barrier over MQTT*/
-
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #define BAUD_RATE 9600
@@ -9,9 +8,13 @@
 Servo servo;
 #define servopin D4
 
-//For ultrasonic
-#define TRIGGER 5
-#define ECHO    4
+// For ultrasonic
+#define TRIGGER D1
+#define ECHO    D2
+
+// FOR RGB
+#define red D7
+#define green D8
 
 #define MQTT_SERVER "Kratos.local"
 const char* ssid = "SpectraNet_iWiz";
@@ -25,11 +28,16 @@ char* subTopic = "Onyx/BoomBarrier/EntryExit";
 // Topic to publish to confirm that the boombarrier has been turned on for the python script to log
 char* pubTopic = "Onyx/BoomBarrier/EntryExitack";
 
+String inputString = "";         // a String to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
+
 // Callback function header
 void callback(char* topic, byte* payload, unsigned int length);
 void reconnect();
 void servoControl(String cmd);
 long ultrasonic();
+void serialEvent();
+
 WiFiClient wifiClient;
 PubSubClient client(MQTT_SERVER, 1883, callback, wifiClient);
 
@@ -43,8 +51,13 @@ void setup() {
   delay(500);
   servo.detach();
 
+  //fps.Open();         //send serial command to initialize fps
+  //fps.SetLED(true);   //turn on LED so fps can see fingerprint
+
   pinMode(TRIGGER, OUTPUT);
   pinMode(ECHO, INPUT);
+  pinMode(red, OUTPUT);
+  pinMode(green, OUTPUT);
 
   // Start wifi subsystem
   WiFi.begin(ssid, password);
@@ -54,7 +67,6 @@ void setup() {
 
   // Wait a bit before starting the main loop
   delay(2000);
-  Serial.println("Done");
 }
 
 void loop() {
@@ -89,7 +101,6 @@ void reconnect() {
     //loop while we wait for connection
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
-      // Serial.print(".");
     }
   }
 
@@ -104,7 +115,6 @@ void reconnect() {
 
       //if connected, subscribe to the topic(s) we want to be notified about
       if (client.connect((char*) clientName.c_str(), mqtt_username, mqtt_password)) {
-        //Serial.print("\tMQTT Connected");
         client.subscribe(subTopic);
       }
     }
@@ -113,29 +123,39 @@ void reconnect() {
 
 void servoControl(String command)
 {
-  if (command == "open") {
-    Serial.println("opening");
-    servo.attach(servopin);
-    servo.write(90);
-    delay(500);
-    servo.detach();
-    while(true) {
-      if(ultrasonic() < 10)
-      {
-        delay(250);
-        while(ultrasonic() < 10)
-          delay(250);
-        break; 
-      }
+  if(command == "open") {
+    Serial.print("scan:");
+    long timer = millis();
+    while(millis() - timer <= 5000) {
+      yield();
+      serialEvent();
+      if(stringComplete)
+        break;
     }
-    delay(1000);
-    servo.attach(servopin);
-    servo.write(0);
-    delay(500);
-    servo.detach();
+    if(stringComplete && inputString == "Authorized") {
+      servo.attach(servopin);
+      servo.write(90);
+      delay(500);
+      servo.detach();
+      while(true) {
+        if(ultrasonic() < 10)
+        {
+          delay(250);
+          while(ultrasonic() < 10)
+            delay(250);
+          break; 
+        }
+      }
+      delay(1000);
+      servo.attach(servopin);
+      servo.write(0);
+      delay(500);
+      servo.detach();
+    }
+    stringComplete = false;
+    inputString = "";
   }
   if (command == "close") {
-    Serial.println("closing");
     servo.attach(servopin);
     servo.write(0);
     delay(500);
@@ -156,3 +176,15 @@ long ultrasonic()
   distance = (duration / 2) / 29.1;
   return distance;
 }
+
+void serialEvent() {
+  while(Serial.available()) {
+    char inChar = (char)Serial.read();
+    if (inChar == ':') {
+      stringComplete = true;
+      break;
+    }
+    inputString += inChar;
+  }
+}
+
