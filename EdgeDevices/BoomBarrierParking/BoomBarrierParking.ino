@@ -120,15 +120,15 @@ void servoControl(String command)
     delay(500);
     servo.detach();
     while(true) {
-      if(ultrasonic() < 7)
+      if(ultrasonic() < 9)
       {
         delay(250);
-        while(ultrasonic() < 7)
+        while(ultrasonic() < 9)
           delay(250);
         break; 
       }
     }
-    delay(1000);
+    delay(2000);
     servo.attach(servopin);
     servo.write(0);
     delay(500);
