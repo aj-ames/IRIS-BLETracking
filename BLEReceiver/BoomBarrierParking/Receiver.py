@@ -50,6 +50,8 @@ class Azure:
         print("Device received message from Azure IoT Hub")
         global Local
         Local.localClient.publish(Local.topic, "open", qos=1)
+        time.sleep(1)
+        Local.localClient.publish(Local.topicCheck, Local.allowed, qos=1)
 
     def __init__(self):
         self.azureClient = mqtt.Client(client_id=self.device_id, 
@@ -82,9 +84,11 @@ class Local:
     user = "Onyx"
     password = "Onyx123"
     topic = "Onyx/BoomBarrier/Parking"
+    topicCheck = "Onyx/BoomBarrier/Parkingack"
     broker_address="Kratos.local"
     localport = 1883
     localClient = None
+    allowed = None
 
     def on_connect(self, client, userdata, flags, rc):
         if(rc == 0):
@@ -152,6 +156,8 @@ class Receiver:
             if(address == add and rssi > -45):
                 prox += 1
                 if(prox == 2):
+                    global Local
+                    Local.allowed = address
                     break
         return prox
 

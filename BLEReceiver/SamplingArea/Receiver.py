@@ -14,7 +14,6 @@ from bluepy.btle import Scanner
 ## Flag to check acknowledgement
 SendAck = False
 ScanInit = True
-validator = False
 
 class Azure:
     ## Variables for Azure Connection
@@ -49,11 +48,9 @@ class Azure:
 
     def on_message(self, client, userdata, message):
         print("Device received message from Azure IoT Hub")
-        global Local, validator
-        if(validator):
-            Local.localClient.publish(Local.topic, "green", qos=1)
-        else:
-            Local.localClient.publish(Local.topic, "red", qos=1)
+        global Local
+        if(Local.allowed == Local.verify):
+            Local.localClient.publish(Local.topicLight, "light", qos=1)
 
     def __init__(self):
         self.azureClient = mqtt.Client(client_id=self.device_id, 
@@ -85,10 +82,14 @@ class Local:
      ## Varibales for Local Connection
     user = "Onyx"
     password = "Onyx123"
-    topic = "Onyx/BoomBarrier/EntryExit"
+    topic = "Onyx/SamplingArea/Area1"
+    topicCheck = "Onyx/BoomBarrier/Parkingack"
+    topicLight = "Onyx/Lights/SamplingLights"
     broker_address="Kratos.local"
     localport = 1883
     localClient = None
+    allowed = None
+    verify = None
 
     def on_connect(self, client, userdata, flags, rc):
         if(rc == 0):
@@ -100,17 +101,21 @@ class Local:
         print ("Device disconnected from Local Broker with result code: " + str(rc))
 
     def on_publish(self, client, userdata, mid):
-        print ("Device sent message to Signal Post")
+        print ("Device sent message to Loading Bay")
         print("Sleep for 10 seconds as buffer period")
         time.sleep(10)
         global ScanInit 
         ScanInit = True
+    
+    def on_message(self, client, userdata, message):
+        self.allowed = str(message.payload.decode("utf-8"))
 
     def __init__(self):
         self.localClient = mqtt.Client("SamplingAreaReceiver")
         self.localClient.on_connect = self.on_connect
         self.localClient.on_disconnect = self.on_disconnect
         self.localClient.on_publish = self.on_publish
+        self.localClient.on_message = self.on_message
 
         print("Initializing connection to Local Broker")
         self.localClient.username_pw_set(self.user, password=self.password)  # set username and password
@@ -151,17 +156,20 @@ class Receiver:
         """ Method to quantify if beacon is in proximity. """
         prox = 0
         t0 = time.time()
-        while((time.time() - t0) < 4):
+        while((time.time() - t0) < 2):
             rssi, address = self.rangeScanner()
             if(address == add and rssi > -45):
                 prox += 1
-                if(prox == 2):
-                    break
+                global Local
+                Local.verify = address
+                break
         return prox
 
 
 ## Initiate the Local class
 Local = Local()
+Local.localClient.subscribe(Local.topicCheck)
+
 ## Initialize the Azure class
 Azure = Azure()
 
@@ -170,7 +178,7 @@ Receiver = Receiver()
 
 scanner = Scanner()
 
-publishData = '{"ReceiverID":"null", "EventType":"null", "Devices":{"TruckID":"null", "BLEID":"null", "dynamic1":"null", "dynamic2":"null"}}'
+publishData = '{"id":"00815414", "DeviceID":"Receiver_LoadingBay", "EventType":"ENTRY_AUTH", "iIndustry":"true", "Devices":{ "TruckID":"111", "BLEID":"1111", "dynamic1":"11", "dynamic2":"11111" }, "Data":{}}'
 
 while True:
     result = None
@@ -179,7 +187,7 @@ while True:
             rssi, address = Receiver.rangeScanner()
             if(rssi > -45):
                 result = Receiver.proximityScanner(address)
-                if(result >= 2):
+                if(result >= 1):
                     Azure.azureClient.publish("devices/" + Azure.device_id + "/messages/events/",
                                                publishData, qos=1)
                     ScanInit = False
