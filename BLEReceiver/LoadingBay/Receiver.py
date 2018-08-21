@@ -50,6 +50,8 @@ class Azure:
         print("Device received message from Azure IoT Hub")
         global Local
         Local.localClient.publish(Local.topic, "load", qos=1)
+        time.sleep(5)
+        Local.localClient.publish(Local.topicLight, "light", qos=1)
 
     def __init__(self):
         self.azureClient = mqtt.Client(client_id=self.device_id, 
@@ -82,6 +84,7 @@ class Local:
     user = "Onyx"
     password = "Onyx123"
     topic = "Onyx/LoadingBay/Bay1"
+    topicLight = "Onyx/Lights/LoadingLights"
     broker_address="Kratos.local"
     localport = 1883
     localClient = None
