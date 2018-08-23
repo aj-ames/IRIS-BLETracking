@@ -7,6 +7,8 @@ Use [MosquittoSetup.md](https://github.com/aj-ames/IRIS-BLETracking/blob/master/
 
 Use [MQTTPythonSetup.md](https://github.com/aj-ames/IRIS-BLETracking/blob/master/MQTTPythonSetup.md) to install PahoMQTT library for MQTTPythonSetup.
 
+Use [DaemonProcessSetup.md](https://github.com/aj-ames/IRIS-BLETracking/blob/master/DaemonProcessSetup.md) to setup each BLE Receiver Pi to run the Scanner script as a Daemon process.
+
 Run the following command for easy installation of all required packages:
 ```sh
 pip3 install -r requirements.txt
@@ -32,3 +34,8 @@ pip3 install -r requirements.txt
 - **Onyx/LoadingBay/Bay1ack**: To receive acknowledgements from Loading Bay 1
 - **Onyx/LoadingBay/Bay2**: To send control commands to Loading Bay 2
 - **Onyx/LoadingBay/Bay2ack**: To receive acknowledgements from Loading Bay 2
+
+#### Lights
+- **Onyx/Lights/WeighLights**: To turn on Weigh Bridge Lights
+- **Onyx/Lights/SamplingLights**: To turn on Sampling Area Lights Lights
+- **Onyx/Lights/LoadingLights**: To turn on Loading Bay Lights
