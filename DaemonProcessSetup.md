@@ -1,6 +1,14 @@
 # Setting up BLE Scanner script as Daemon Process
+### 1. Setup rmate on the RPi
 
-### 1. Create shell script
+```sh
+## Install rmate
+sudo wget -O /usr/local/bin/rmate https://raw.github.com/aurora/rmate/master/rmate
+## Change Permissions
+sudo chmod a+x /usr/local/bin/rmate
+```
+
+### 2. Create shell script
 
 Create a shell script of the python file that needs to be executed:
 ```sh
@@ -14,7 +22,7 @@ sudo python3 Receiver.py
 ```
 Save the contents of this file.
 
-### 2. Create the service file
+### 3. Create the service file
 
 Create the file with the follwing command: 
 ```sh
@@ -40,13 +48,13 @@ Change the permissions of the file to 644:
 sudo chmod 644 /lib/systemd/system/ble.service
 ```
 
-### 3. Configure systemd
+### 4. Configure systemd
 Run the following commands:
 ```sh
 ## To reload daemons cause a new one has been created
 sudo systemctl daemon-reload 
 ## To start the service 
-sudo systemctl start ble.service
+sudo systemctl enable ble.service
 ```
 
 Once done, reboot the Pi:
