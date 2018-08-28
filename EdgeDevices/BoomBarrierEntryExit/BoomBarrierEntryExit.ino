@@ -17,8 +17,8 @@ Servo servo;
 #define green D8
 
 #define MQTT_SERVER "Kratos.local"
-const char* ssid = "SpectraNet_iWiz";
-const char* password = "iWizards2014";
+const char* ssid = "Onyx";
+const char* password = "astr1x2096";
 const char* mqtt_username = "Onyx";
 const char* mqtt_password = "Onyx123";
 
@@ -67,6 +67,7 @@ void setup() {
 
   // Wait a bit before starting the main loop
   delay(2000);
+  Serial.println("Done");
 }
 
 void loop() {

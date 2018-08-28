@@ -14,8 +14,8 @@ Servo servo;
 #define ECHO    4
 
 #define MQTT_SERVER "Kratos.local"
-const char* ssid = "SpectraNet_iWiz";
-const char* password = "iWizards2014";
+const char* ssid = "Onyx";
+const char* password = "astr1x2096";
 const char* mqtt_username = "Onyx";
 const char* mqtt_password = "Onyx123";
 

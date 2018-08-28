@@ -13,8 +13,8 @@ int trigPin = D7;
 int echoPin = D8;
 
 #define MQTT_SERVER "Kratos.local"
-const char* ssid = "SpectraNet_iWiz";
-const char* password = "iWizards2014";
+const char* ssid = "Onyx";
+const char* password = "astr1x2096";
 const char* mqtt_username = "Onyx";
 const char* mqtt_password = "Onyx123";
 
