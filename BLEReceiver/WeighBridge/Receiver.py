@@ -90,6 +90,7 @@ class Display:
 
         for i in range(self.LCD_WIDTH):
             self.lcd_byte(ord(message[i]), self.LCD_CHR)
+        
     
     def __init__(self):
         self.lcd_init()
@@ -98,14 +99,14 @@ class Display:
 class Azure:
     ## Variables for Azure Connection
     path_to_root_cert = "../BaltimoreCertificate/digicert.cer"
-    device_id = "Receiver_Weigh"
+    device_id = "Receiver_WeighBridge"
     sas_token = "SharedAccessSignature sr=IWizardsIOTHub.azure-devices.net&sig=1DNvWB2XUS5al3aJi%2BXs9jMODbNJnvHpsmeGvfwbG0A%3D&se=1564663028&skn=iothubowner"
     iot_hub_name = "IWizardsIOTHub"
     azureport = 8883
     head = {
         "iothub-contenttype":"application/json",
         "iothub-contentencoding":"utf-8"
-    }
+    } 
     azureClient = None
 
     ''' Class to define methods, callbacks and initiate client MQTT connection to Azure IoT Hub. '''
@@ -167,6 +168,7 @@ class Local:
     broker_address="Kratos.local"
     localport = 1883
     localClient = None
+    flag = False
 
     def on_connect(self, client, userdata, flags, rc):
         if(rc == 0):
@@ -178,7 +180,15 @@ class Local:
         print ("Device disconnected from Local Broker with result code: " + str(rc))
 
     def on_publish(self, client, userdata, mid):
-        print ("Device sent message to Weigh Bridge/Lights")
+        if(self.flag):
+            print("Device sent message to Weigh Lights")
+            print("Sleep for 10 seconds as buffer period")
+            time.sleep(10)
+            global ScanInit 
+            ScanInit = True
+            self.flag = False
+            return
+        print ("Device sent message to Weigh Bridge")
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         print("Subscribed to receive weight")
@@ -190,10 +200,7 @@ class Local:
         Display.lcd_string(msg, Display.LCD_LINE_1)
         Display.lcd_string("Truck: KA03ML843", Display.LCD_LINE_2)
         self.localClient.publish(self.topicLight, "light", qos=1)
-        print("Sleep for 10 seconds as buffer period")
-        time.sleep(10)
-        global ScanInit 
-        ScanInit = True
+        self.flag = True
  
     time.sleep(3)
 
@@ -228,7 +235,7 @@ class Receiver:
         """ Method to check for beacons in range. """
         print("Scanning..")
         global scanner
-        devices = scanner.scan(1)
+        devices = scanner.scan(0.5)
         rssi = -45
         address = None
         for dev in devices:
